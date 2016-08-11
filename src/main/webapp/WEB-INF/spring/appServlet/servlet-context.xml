@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<context:component-scan base-package="spring.restful.study" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+    </context:component-scan>
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+	
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<!-- 
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+		<beans:property name="order" value="1" />
+	</beans:bean>
+ 	-->
+
+	<!-- 
+		View를 선택하기 위해서, ContentNegotiatingViewResolver는 클라이언트로부터 요청된 미디어 타입을 가지고 매칭시키는데, 
+		이 미디어 타입을 알아내는 작업은 다음과 같은 과정으로 이루어진다.
+		
+		1. favorPathExtension 속성 값이 true(디폴트값이 true이다)이고, Request path(URL)에 파일 확장자가 포함되어 있다면 mediaTypes 속성에 정의된 매핑 정보를 사용.
+		2. favorParameter 속성 값이 true(디폴트값은 false이다)이고, Request에 미디어 타입을 정의하는 파라미터가 포함되어 있다면  mediaTypes 속성에 정의된 매핑 정보를 사용.
+			디폴트 파라미터 명은 'format'이고 이것은 parameterName이라는 속성으로 변경가능하다.
+		3. ignoreAcceptHeader가 false로 지정되어있으면 Request의 Accept 헤더 값을 사용.
+		4. 위의 모든 과정을 거치고도 미디어 타입을 찾지 못한 경우, 
+		     최종적으로 ContentNegotiatingViewResolver의 defaultContentType이 정의되어 있다면 그 값을 클라이언트에서 요청한 미디어 타입으로 간주한다.
+	 -->
+	<beans:bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<beans:property name="order" value="0" />
+		
+		<!-- Request Path(URL) 에 확장자 정보를 가지고 분기 하려면 아래 이용. -->
+		<!-- 
+		<beans:property name="favorPathExtension" value="false" />
+		<beans:property name="parameterName" value="format" />
+		<beans:property name="mediaTypes">
+		    <beans:map>
+		        <beans:entry key="html" value="text/html"/>
+		        <beans:entry key="json" value="application/json"/>
+		        <beans:entry key="xml" value="application/xml"/>
+		    </beans:map>
+		</beans:property>
+		-->
+		 
+		<!-- Request Header의 Accept정보를 가지고 분기 하려면 아래 이용.  false 면 Accept Header를 사용 한다는 의미. -->
+		<beans:property name="ignoreAcceptHeader" value="false" />
+		
+		<beans:property name="viewResolvers">
+		    <beans:list>
+				<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+					<beans:property name="prefix" value="/WEB-INF/views/" />
+					<beans:property name="suffix" value=".jsp" />
+				</beans:bean>
+		    </beans:list>
+		</beans:property>
+		
+		<beans:property name="defaultViews">
+		    <beans:list>
+		        <beans:bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+				<beans:bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+					<beans:constructor-arg>
+						<beans:bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+							<beans:property name="packagesToScan">
+								<beans:array>
+									<beans:value>spring.restful.study.vo</beans:value>
+					        	</beans:array>
+							</beans:property>
+							<beans:property name="marshallerProperties">
+								<beans:map>
+									<beans:entry>
+										<beans:key>
+											<util:constant static-field="javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT" />
+										</beans:key>
+										<beans:value type="java.lang.Boolean">false</beans:value>
+									</beans:entry>
+								</beans:map>
+							</beans:property>
+						</beans:bean>
+					</beans:constructor-arg>
+				</beans:bean>
+		    </beans:list>
+		</beans:property>
+	</beans:bean>
+	
+</beans:beans>
